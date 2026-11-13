@@ -357,3 +357,129 @@ def run(args,b):
                 ensure(not path.exists(),f'REFUSING OVERWRITE: {path}')
                 model_o,eo,dev_o=train_encoder(b['dataset'],x[mod],y,target,split,seed,'O',args.epochs,args.batch,device)
                 model_e,ee,dev_e=train_encoder(b['dataset'],x[mod],y,target,split,seed,'E',args.epochs,args.batch,device)
+                ro={} ; errs={}
+                for kind,model in [('O',model_o),('E',model_e)]:
+                    ztr=embed(model,x[mod][tr],device,args.batch)
+                    zdv=embed(model,x[mod][dev],device,args.batch)
+                    zte=embed(model,x[mod][test],device,args.batch)
+                    alpha,ridge,dev_mse=ridge_select(ztr,target[tr],zdv,target[dev])
+                    err=mse(target[test],ridge_predict(ridge,zte))
+                    ensure(np.isfinite(err) and err>=0,
+                           f'NONFINITE_TEST_READOUT_ERROR dataset={b["dataset"]} factor={factor} modality={mod} seed={seed} kind={kind}')
+                    errs['Err_'+kind]=err
+                    ro['R_'+kind]=err/err_oracle
+                    ensure(np.isfinite(ro['R_'+kind]), 'NONFINITE_ERROR_RATIO')
+                    ro['alpha_'+kind]=alpha
+                    ro['dev_readout_mse_'+kind]=dev_mse
+                item={'dataset':b['dataset'],'target':factor,'modality':mod,'seed':seed,
+                      'scale':'window' if b['dataset']=='operanet' else 'sequence',
+                      'reference_modality':'kinect' if b['dataset']=='operanet' else 'rgbpose',
+                      'self_reference_control':mod in ('kinect','rgbpose'),
+                      'n_train':b['counts']['train'],'n_dev':b['counts']['dev'],'n_test':b['counts']['test'],
+                      'Err_oracle':err_oracle,**errs,**ro,'H':ro['R_E']-ro['R_O'],
+                      'O_best_epoch':eo,'E_best_epoch':ee,'O_dev_objective':dev_o,'E_dev_accuracy':dev_e,
+                      'preprocessing_sha256':b['sources']}
+                ensure(np.isfinite(item['H']),
+                       f'NONFINITE_HEADROOM dataset={b["dataset"]} factor={factor} modality={mod} seed={seed}')
+                atomic_json(path,item)
+                rows.append(item)
+                print('DONE',b['dataset'],factor,mod,'seed',seed,
+                      'R_O',round(ro['R_O'],4),'R_E',round(ro['R_E'],4),
+                      'H',round(item['H'],4),'control' if item['self_reference_control'] else '',flush=True)
+                del model_o,model_e
+    write_summary(out,rows)
+
+
+def atomic_json(path, data):
+    path=Path(path)
+    tmp=Path(str(path)+'.partial')
+    ensure(not path.exists() and not tmp.exists(), f'result already exists {path}')
+    with open(tmp,'x',encoding='utf-8') as f:
+        json.dump(data,f,indent=2)
+        f.flush();os.fsync(f.fileno())
+    os.replace(tmp,path)
+
+
+def write_summary(out,rows):
+    summary=out/'observability.csv'
+    ensure(not summary.exists(), f'REFUSING OVERWRITE {summary}')
+    cols=['dataset','target','modality','seed','scale','reference_modality',
+          'self_reference_control','n_train','n_dev','n_test','Err_oracle',
+          'Err_O','Err_E','R_O','R_E','H','alpha_O','alpha_E',
+          'O_best_epoch','E_best_epoch']
+    for item in rows:
+        for metric in ('Err_oracle','Err_O','Err_E','R_O','R_E','H'):
+            ensure(np.isfinite(item[metric]),
+                   f'NONFINITE_SUMMARY_METRIC {metric} {item["dataset"]} {item["target"]} {item["modality"]} seed {item["seed"]}')
+    with open(summary,'x',newline='',encoding='utf-8') as f:
+        writer=csv.DictWriter(f,fieldnames=cols,extrasaction='ignore')
+        writer.writeheader();writer.writerows(rows)
+    print('SUMMARY',summary,flush=True)
+
+
+def selftest():
+    """Small synthetic tests; does not read any real data or import PyTorch."""
+    rng=np.random.default_rng(42)
+    n=240;y=np.tile(np.arange(4),60)
+    group=np.repeat([f's{i}' for i in range(12)],20)
+    split=np.asarray(['train' if i<8 else 'dev' if i<10 else 'test' for i in np.repeat(np.arange(12),20)])
+    t=y.astype(float)+rng.normal(0,.25,n)
+    x=t[:,None]+rng.normal(0,.03,(n,1))
+    tr=split=='train';dev=split=='dev';test=split=='test'
+    oracle=mse(t[test],label_oracle(y[tr],t[tr],y[test]))
+    a,fit,_=ridge_select(x[tr],t[tr],x[dev],t[dev])
+    r=mse(t[test],ridge_predict(fit,x[test]))/oracle
+    assert r<0.3,(r,a)
+    null=np.ones_like(x)
+    _,fit,_=ridge_select(null[tr],t[tr],null[dev],t[dev])
+    assert mse(t[test],ridge_predict(fit,null[test]))/oracle>1.
+    p=np.ones((1,48,34),dtype=np.float32)
+    p[0,:,9*2]=np.linspace(1,10,48)
+    assert mmfi_energy(p,np.arange(1,49),[9])[0]>0
+    try:
+        finish('operanet',{'wifi':np.ones((n,2,3))},y,np.repeat('same',n),split,
+               {'f':t},[])
+        raise AssertionError('subject leakage not detected')
+    except ValueError as e:
+        assert 'LEAKAGE' in str(e)
+    try:
+        mse(np.asarray([np.nan]), np.asarray([0.]))
+        raise AssertionError('nonfinite MSE not detected')
+    except ValueError as e:
+        assert 'NONFINITE' in str(e)
+    try:
+        ridge_select(np.ones((4,2)),np.array([1.,np.inf,0.,1.]),
+                     np.ones((2,2)),np.ones(2))
+        raise AssertionError('nonfinite ridge training input not detected')
+    except ValueError as e:
+        assert 'NONFINITE' in str(e)
+    print('SYNTHETIC_TESTS_PASSED R_O_signal',round(r,3),
+          'null>=1, bad split rejected, nonfinite guards passed')
+
+
+def main():
+    ap=argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('action',choices=['self-test','preflight','run'])
+    ap.add_argument('--dataset',choices=['operanet','mmfi'])
+    ap.add_argument('--input',type=Path)
+    ap.add_argument('--out',type=Path)
+    ap.add_argument('--modalities',nargs='+')
+    ap.add_argument('--seeds',nargs='+',type=int,default=[11,22,33])
+    ap.add_argument('--epochs',type=int,default=30)
+    ap.add_argument('--batch',type=int,default=64)
+    ap.add_argument('--device',choices=['auto','cpu','cuda'],default='auto')
+    args=ap.parse_args()
+    if args.action=='self-test':return selftest()
+    ensure(args.dataset and args.input, 'dataset and input required')
+    if args.action=='run':ensure(args.out,'run requires --out')
+    ensure(args.epochs>0 and args.batch>0 and len(set(args.seeds))==len(args.seeds),
+           'bad epochs/batch/seeds')
+    data=parse_operanet(args.input) if args.dataset=='operanet' else parse_mmfi(args.input)
+    print('COHORT_GATE_PASSED',data['dataset'],data['counts'],
+          'targets',list(data['targets']),'modalities',list(data['x']),flush=True)
+    for key,v in data['targets'].items():
+        print('REFERENCE',key,'train_mean',float(v[data['split']=='train'].mean()),
+              'train_std',float(v[data['split']=='train'].std()),flush=True)
+    if args.action=='run':run(args,data)
+
+if __name__=='__main__':main()
