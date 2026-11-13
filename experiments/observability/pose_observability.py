@@ -232,3 +232,128 @@ def mse(a,b):
     result=float(np.mean((a-b)**2))
     ensure(np.isfinite(result), 'NONFINITE_MSE_RESULT')
     return result
+
+def make_model(dataset,dim,nclasses,regression):
+    import torch
+    from torch import nn
+    class Model(nn.Module):
+        def __init__(self):
+            super().__init__()
+            if dataset=='operanet':
+                layers=[]; c=dim
+                for _ in range(4):
+                    layers.extend([nn.Conv1d(c,64,5,padding=2),nn.ReLU()]);c=64
+                self.conv=nn.Sequential(*layers)
+                self.lstm=nn.LSTM(64,128,num_layers=2,dropout=.5,batch_first=True)
+                emb=128
+            else:
+                self.pre=nn.Sequential(nn.LayerNorm(dim),nn.Linear(dim,96),nn.GELU())
+                self.temporal=nn.Sequential(nn.Conv1d(96,96,3,padding=1),nn.GELU(),
+                                            nn.Conv1d(96,96,3,padding=1),nn.GELU())
+                self.proj=nn.Sequential(nn.Linear(192,96),nn.GELU())
+                emb=96
+            self.head=nn.Linear(emb,1 if regression else nclasses)
+        def forward(self,x):
+            if dataset=='operanet':
+                h=self.conv(x.transpose(1,2)).transpose(1,2)
+                h,_=self.lstm(h)
+                z=h[:,-1,:]
+            else:
+                h=self.temporal(self.pre(x).transpose(1,2))
+                z=self.proj(torch.cat((h.mean(-1),h.amax(-1)),dim=-1))
+            return self.head(z),z
+    return Model()
+
+
+def seed_all(seed):
+    import torch
+    random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
+    if torch.cuda.is_available():torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic=True
+    torch.backends.cudnn.benchmark=False
+
+
+def embed(model,x,device,batch):
+    import torch
+    out=[]; model.eval()
+    with torch.no_grad():
+        for start in range(0,len(x),batch):
+            _,z=model(torch.from_numpy(x[start:start+batch]).to(device))
+            ensure(bool(torch.isfinite(z).all().item()),
+                   f'NONFINITE_ENCODER_EMBEDDING at batch offset {start}')
+            out.append(z.cpu().numpy())
+    return np.concatenate(out,axis=0)
+
+
+def train_encoder(dataset,x,y,target,split,seed,task,epochs,batch,device):
+    import torch
+    from torch.nn import functional as F
+    seed_all(seed+(0 if task=='O' else 100003))
+    reg=task=='O'
+    model=make_model(dataset,x.shape[-1],int(np.max(y))+1,reg).to(device)
+    opt=(torch.optim.Adam(model.parameters(),lr=1e-3,weight_decay=1e-4)
+         if dataset=='operanet' else torch.optim.AdamW(model.parameters(),lr=1e-3,weight_decay=1e-3))
+    tr=np.flatnonzero(split=='train');dv=np.flatnonzero(split=='dev')
+    train_z=target[tr]
+    tmean=float(np.mean(train_z));tsd=float(np.std(train_z))
+    ensure(tsd>1e-9,'constant training motion target')
+    target=(target-tmean)/tsd
+    rng=np.random.default_rng(seed + (0 if reg else 100003))
+    best=(float('inf') if reg else -float('inf'))
+    best_state=None;best_epoch=None
+    for ep in range(1,epochs+1):
+        model.train();order=rng.permutation(tr)
+        for take in np.array_split(order,max(1,(len(order)+batch-1)//batch)):
+            inp=torch.from_numpy(x[take]).to(device)
+            prediction,_=model(inp)
+            if reg:
+                truth=torch.tensor(target[take],dtype=torch.float32,device=device)
+                loss=F.mse_loss(prediction.squeeze(-1),truth)
+            else:
+                truth=torch.tensor(y[take],dtype=torch.long,device=device)
+                loss=F.cross_entropy(prediction,truth)
+            ensure(bool(torch.isfinite(loss).item()),
+                   f'NONFINITE_TRAIN_LOSS dataset={dataset} task={task} seed={seed} epoch={ep}')
+            opt.zero_grad(set_to_none=True);loss.backward();opt.step()
+        # Dev used for checkpoint selection. Held-out test is untouched until readout is frozen.
+        model.eval();preds=[]
+        with torch.no_grad():
+            for take in np.array_split(dv,max(1,(len(dv)+batch-1)//batch)):
+                pred,_=model(torch.from_numpy(x[take]).to(device))
+                preds.append(pred.cpu().numpy())
+        p=np.concatenate(preds)
+        ensure(np.isfinite(p).all(),
+               f'NONFINITE_DEV_PREDICTIONS dataset={dataset} task={task} seed={seed} epoch={ep}')
+        score=(mse(p.reshape(-1),target[dv]) if reg else
+               float((p.argmax(1)==y[dv]).mean()))
+        better=(score<best if reg else score>best)
+        if better:best=score;best_state=copy.deepcopy(model.state_dict());best_epoch=ep
+    model.load_state_dict(best_state)
+    return model,best_epoch,float(best)
+
+
+def run(args,b):
+    import torch
+    torch.set_num_threads(min(int(os.environ.get('SLURM_CPUS_PER_TASK','4')),8))
+    device=('cuda' if torch.cuda.is_available() else 'cpu') if args.device=='auto' else args.device
+    if device=='cuda': ensure(torch.cuda.is_available(), 'requested CUDA but none available')
+    if device=='cuda': os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
+    torch.use_deterministic_algorithms(True)
+    out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
+    split=b['split'];y=b['y'];tr=split=='train';dev=split=='dev';test=split=='test'
+    mods=list(b['x']) if args.modalities is None else args.modalities
+    ensure(set(mods).issubset(b['x']),f'unknown modalities {mods}')
+    x={m:normalize_train_only(b['x'][m],tr) for m in mods}
+    rows=[]
+    for factor,target in b['targets'].items():
+        oracle=label_oracle(y[tr],target[tr],y[test])
+        err_oracle=mse(target[test],oracle)
+        ensure(err_oracle > 1e-12 * max(float(target[tr].var()),float(target[test].var()),1e-24),
+               f'zero label-only test error: {factor}')
+        for mod in mods:
+            for seed in args.seeds:
+                name=f'{b["dataset"]}_{factor}_{mod}_seed{seed}.json'
+                path=out/name
+                ensure(not path.exists(),f'REFUSING OVERWRITE: {path}')
+                model_o,eo,dev_o=train_encoder(b['dataset'],x[mod],y,target,split,seed,'O',args.epochs,args.batch,device)
+                model_e,ee,dev_e=train_encoder(b['dataset'],x[mod],y,target,split,seed,'E',args.epochs,args.batch,device)
