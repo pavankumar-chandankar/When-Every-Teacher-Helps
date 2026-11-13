@@ -1,13 +1,21 @@
 # When Every Teacher Helps
 
-Experiments and aggregate results for *When Every Teacher Helps: A Post-Mortem of Cross-Modal Learning for WiFi Activity Recognition*.
+Code and aggregate results for *When Every Teacher Helps: A Post-Mortem of Cross-Modal Learning for WiFi Activity Recognition*.
 
-The study compares cross-modal classification on XRFv2 Plus (30 directed pairs), OPERAnet (12), and MM-Fi (20). The MM-Fi matrix was run with 12 and 48 sampled frames.
+The classification experiments cover XRFv2 Plus (30 directed teacher–student pairs), OPERAnet (12), and MM-Fi (20). MM-Fi matrices include both 12-frame and 48-frame sampling.
 
-- `experiments/` — preprocessing, training, and figure code
-- `results/` — reported classification matrices and available diagnostic summaries
-- `checks/` — consistency checks against the manuscript
+`experiments/xrfv2-plus/`, `experiments/operanet/`, and `experiments/mmfi/` contain the available matrix training and preprocessing code. `experiments/observability/` contains the additional OPERAnet and MM-Fi pose-motion observability experiment, with a reproducibility protocol and synthetic tests. `results/` contains classification matrices, XRFv2 observability records, and the newly reported pose-motion observability aggregates.
 
-Run `python checks/check_results.py` to validate the reported matrix summaries. The experiments require the original datasets and their respective Python dependencies; no raw data or model weights are included.
+The cross-dataset observability targets are **not the same physical quantity**: XRFv2 uses IMU-derived motion references, while OPERAnet and MM-Fi use Kinect/RGB-pose displacement proxies. See [the observability protocol](experiments/observability/README.md) for precise targets, splits, and limitations.
 
-Code: CC0-1.0 (existing repository license). Dataset use is governed by the individual dataset licenses.
+Validate the committed summaries using:
+
+```bash
+python checks/check_results.py
+python experiments/observability/pose_observability.py self-test
+python experiments/observability/smoke_test.py
+```
+
+The consistency checker uses standard-library Python; the observability tests require NumPy and PyTorch. Other matrix scripts have additional requirements listed in `requirements.txt`. Original datasets, intermediate caches, checkpoint weights, and full OPERAnet/MM-Fi observability per-seed files are not bundled. See [results inventory](results/README.md).
+
+Code license: CC0-1.0. Dataset licenses remain with their respective providers.

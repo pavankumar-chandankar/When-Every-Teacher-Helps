@@ -44,6 +44,8 @@ def check():
             assert all(float(r['mean_macro_f1_or_gain']) < 0 for r in gains if r['student'] == 'wifi')
     check_xrf_run_log()
     check_observability()
+    from check_pose_observability import check as check_pose_observability
+    check_pose_observability()
     print('Classification matrices, XRF run log and observability values validated.')
 
 
