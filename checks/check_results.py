@@ -42,7 +42,50 @@ def check():
         assert score['wifi'] == wifi and score['rgbpose'] == rgb
         if frame == 48:
             assert all(float(r['mean_macro_f1_or_gain']) < 0 for r in gains if r['student'] == 'wifi')
-    print('Classification matrices match reported pair counts, signs and sampling summaries.')
+    check_xrf_run_log()
+    check_observability()
+    print('Classification matrices, XRF run log and observability values validated.')
+
+
+def check_xrf_run_log():
+    import re
+    text = (ROOT / 'experiments/xrfv2-plus/figures/matrix_raw.txt').read_text()
+    names = ('imu', 'airpods', 'pose2d', 'pose3d', 'video', 'wifi')
+    pattern = r'((?:' + '|'.join(names) + r'|student)(?:_from_(?:' + '|'.join(names) + r'))?)_seed([123]) "val_known_macro_f1": ([0-9.]+)'
+    values = {(name, int(seed)): float(score) for name, seed, score in re.findall(pattern, text)}
+    for seed in (1, 2, 3):
+        values['wifi_from_imu', seed] = values['student', seed]
+    gains = {}
+    positive_runs = 0
+    for student in names:
+        for teacher in names:
+            if student == teacher:
+                continue
+            per_seed = [values[f'{student}_from_{teacher}', seed] - values[student, seed] for seed in (1, 2, 3)]
+            positive_runs += sum(v > 0 for v in per_seed)
+            gains[student, teacher] = sum(per_seed) / 3
+    assert len(gains) == 30 and positive_runs == 82 and all(v > 0 for v in gains.values())
+
+    aliases = {'2d_pose': 'pose2d', '3d_pose': 'pose3d', 'body_imu': 'imu'}
+    for row in read('results/xrfv2-plus/matrix_published_rounded.csv'):
+        student = aliases.get(row['student'], row['student'])
+        teacher = aliases.get(row['teacher'], row['teacher'])
+        if row['kind'] == 'baseline':
+            actual = sum(values[student, seed] for seed in (1, 2, 3)) / 3
+            assert abs(actual - float(row['value'])) < .0051
+        else:
+            assert abs(100 * gains[student, teacher] - float(row['value'])) < .051
+
+
+def check_observability():
+    rows = read('results/xrfv2-plus/observability.csv')
+    assert len(rows) == 156
+    def values(modality, factor):
+        return [float(row['R_O']) for row in rows
+                if row['modality'] == modality and row['factor'] == factor and row['scale'] == 'per_second']
+    assert all(.50 <= x <= .52 for x in values('AirPods (head control)', 'F3h'))
+    assert all(.44 <= x <= .49 for x in values('Pose2D', 'F1'))
+    assert all(.90 <= x <= .94 for x in values('WiFi', 'F1'))
 
 if __name__ == '__main__':
     check()
