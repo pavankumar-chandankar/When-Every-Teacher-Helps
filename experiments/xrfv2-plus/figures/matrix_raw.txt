@@ -1,0 +1,162 @@
+(base) [user@hpc-login02 ~]$ for d in ./data/runs_har/*; do echo "${d##*/} $(grep -hoE '"[a-zA-Z_]*f1[a-zA-Z_]*": *[0-9.]+' "$d"/*.json 2>/dev/null | head -2 | tr '\n' ' ')"; done
+_remap*' -name "*.$k*report*" -exec grep -H 'Average mAP' {} \; 2>/dev/null | sed -E 's/.*epoch-([0-9]+).*Average mAP: ([0-9.]+)/\2 ep\1/' | sort -rn | head -1)"; done; done
+grep -rlE "paired|t-test|t_stat" ./data/runs_seeds ./data/runs_final ~/CrossGuard-Fi/reports 2>/dev/null | headairpods_from_imu_seed1 "val_known_macro_f1": 0.6095608773961495
+airpods_from_imu_seed2 "val_known_macro_f1": 0.624278397420211
+airpods_from_imu_seed3 "val_known_macro_f1": 0.6058964665796832
+airpods_from_pose2d_seed1 "val_known_macro_f1": 0.5985709437418162
+airpods_from_pose2d_seed2 "val_known_macro_f1": 0.6169747686851498
+airpods_from_pose2d_seed3 "val_known_macro_f1": 0.6020192228899162
+airpods_from_pose3d_seed1 "val_known_macro_f1": 0.6121621409331389
+airpods_from_pose3d_seed2 "val_known_macro_f1": 0.6065492568350612
+airpods_from_pose3d_seed3 "val_known_macro_f1": 0.5957356433851461
+airpods_from_video_seed1 "val_known_macro_f1": 0.6103608548115195
+airpods_from_video_seed2 "val_known_macro_f1": 0.6068005542596505
+airpods_from_video_seed3 "val_known_macro_f1": 0.6098457819188776
+airpods_from_wifi_seed1 "val_known_macro_f1": 0.5867361620598773
+airpods_from_wifi_seed2 "val_known_macro_f1": 0.6027251943327466
+airpods_from_wifi_seed3 "val_known_macro_f1": 0.5987873499935955
+airpods_seed1 "val_known_macro_f1": 0.5726922456506808
+airpods_seed2 "val_known_macro_f1": 0.5878823118618277
+airpods_seed3 "val_known_macro_f1": 0.6077000698888764
+imu_from_airpods_seed1 "val_known_macro_f1": 0.7490514554744397
+imu_from_airpods_seed2 "val_known_macro_f1": 0.7570580507533009
+imu_from_airpods_seed3 "val_known_macro_f1": 0.7325388642117451
+imu_from_pose2d_seed1 "val_known_macro_f1": 0.7137118803654329
+imu_from_pose2d_seed2 "val_known_macro_f1": 0.7337261913397155
+imu_from_pose2d_seed3 "val_known_macro_f1": 0.747733269260285
+imu_from_pose3d_seed1 "val_known_macro_f1": 0.7451015587406564
+imu_from_pose3d_seed2 "val_known_macro_f1": 0.7169761181414757
+imu_from_pose3d_seed3 "val_known_macro_f1": 0.7402496485928302
+imu_from_video_seed1 "val_known_macro_f1": 0.7504122214254476
+imu_from_video_seed2 "val_known_macro_f1": 0.7194647056295379
+imu_from_video_seed3 "val_known_macro_f1": 0.746166718966767
+imu_from_wifi_seed1 "val_known_macro_f1": 0.7491128259660171
+imu_from_wifi_seed2 "val_known_macro_f1": 0.7492265329908766
+imu_from_wifi_seed3 "val_known_macro_f1": 0.7363833920077448
+imu_seed1 "val_known_macro_f1": 0.7299782256548388
+imu_seed2 "val_known_macro_f1": 0.7136216953062041
+imu_seed3 "val_known_macro_f1": 0.6708249271743499
+pose2d_from_airpods_seed1 "val_known_macro_f1": 0.8134635413101702
+pose2d_from_airpods_seed2 "val_known_macro_f1": 0.7805983063196403
+pose2d_from_airpods_seed3 "val_known_macro_f1": 0.8298732291076584
+pose2d_from_imu_seed1 "val_known_macro_f1": 0.8132753623344874
+pose2d_from_imu_seed2 "val_known_macro_f1": 0.8260128624978286
+pose2d_from_imu_seed3 "val_known_macro_f1": 0.8206598587178964
+pose2d_from_pose3d_seed1 "val_known_macro_f1": 0.8074590333919724
+pose2d_from_pose3d_seed2 "val_known_macro_f1": 0.8290307822967864
+pose2d_from_pose3d_seed3 "val_known_macro_f1": 0.8011490574031122
+pose2d_from_video_seed1 "val_known_macro_f1": 0.8200654599244105
+pose2d_from_video_seed2 "val_known_macro_f1": 0.8334152462966574
+pose2d_from_video_seed3 "val_known_macro_f1": 0.8242601281148572
+pose2d_from_wifi_seed1 "val_known_macro_f1": 0.8235574218130832
+pose2d_from_wifi_seed2 "val_known_macro_f1": 0.8284889641946919
+pose2d_from_wifi_seed3 "val_known_macro_f1": 0.8137202086497206
+pose2d_seed1 "val_known_macro_f1": 0.7606289214482134
+pose2d_seed2 "val_known_macro_f1": 0.7753472048666108
+pose2d_seed3 "val_known_macro_f1": 0.8024117308828504
+pose3d_from_airpods_seed1 "val_known_macro_f1": 0.7853516645042107
+pose3d_from_airpods_seed2 "val_known_macro_f1": 0.7793710168852312
+pose3d_from_airpods_seed3 "val_known_macro_f1": 0.7680629771848771
+pose3d_from_imu_seed1 "val_known_macro_f1": 0.7719170812429006
+pose3d_from_imu_seed2 "val_known_macro_f1": 0.7366002933343817
+pose3d_from_imu_seed3 "val_known_macro_f1": 0.7520164649419673
+pose3d_from_pose2d_seed1 "val_known_macro_f1": 0.7414876174371446
+pose3d_from_pose2d_seed2 "val_known_macro_f1": 0.7343848468714448
+pose3d_from_pose2d_seed3 "val_known_macro_f1": 0.717119428505573
+pose3d_from_video_seed1 "val_known_macro_f1": 0.750378653837359
+pose3d_from_video_seed2 "val_known_macro_f1": 0.751879488256256
+pose3d_from_video_seed3 "val_known_macro_f1": 0.7549017991408951
+pose3d_from_wifi_seed1 "val_known_macro_f1": 0.7566414692842923
+pose3d_from_wifi_seed2 "val_known_macro_f1": 0.7555517515652733
+pose3d_from_wifi_seed3 "val_known_macro_f1": 0.7719460665402015
+pose3d_seed1 "val_known_macro_f1": 0.7231487622065571
+pose3d_seed2 "val_known_macro_f1": 0.7260689129924612
+pose3d_seed3 "val_known_macro_f1": 0.7234235546272784
+student_seed1 "val_known_macro_f1": 0.26965975775108747
+student_seed2 "val_known_macro_f1": 0.24636060605917076
+student_seed3 "val_known_macro_f1": 0.29061538696342065
+video_from_airpods_seed1 "val_known_macro_f1": 0.6118597498858173
+video_from_airpods_seed2 "val_known_macro_f1": 0.6286737948490854
+video_from_airpods_seed3 "val_known_macro_f1": 0.6347300158230857
+video_from_imu_seed1 "val_known_macro_f1": 0.5745701932337268
+video_from_imu_seed2 "val_known_macro_f1": 0.6208506906978752
+video_from_imu_seed3 "val_known_macro_f1": 0.6026497979826496
+video_from_pose2d_seed1 "val_known_macro_f1": 0.5410823422923436
+video_from_pose2d_seed2 "val_known_macro_f1": 0.6067263366159911
+video_from_pose2d_seed3 "val_known_macro_f1": 0.5689421078336409
+video_from_pose3d_seed1 "val_known_macro_f1": 0.6427646922839885
+video_from_pose3d_seed2 "val_known_macro_f1": 0.5999942890128293
+video_from_pose3d_seed3 "val_known_macro_f1": 0.5808342151280613
+video_from_wifi_seed1 "val_known_macro_f1": 0.6121837408107376
+video_from_wifi_seed2 "val_known_macro_f1": 0.6237624161495433
+video_from_wifi_seed3 "val_known_macro_f1": 0.5916151182847545
+video_seed1 "val_known_macro_f1": 0.5725909419099724
+video_seed2 "val_known_macro_f1": 0.5109009657775182
+video_seed3 "val_known_macro_f1": 0.5204834537961519
+wifi_from_airpods_seed1 "val_known_macro_f1": 0.30777670620486397
+wifi_from_airpods_seed2 "val_known_macro_f1": 0.2704772705830831
+wifi_from_airpods_seed3 "val_known_macro_f1": 0.24551218876431088
+wifi_from_pose2d_seed1 "val_known_macro_f1": 0.26304073931662186
+wifi_from_pose2d_seed2 "val_known_macro_f1": 0.27028747880202425
+wifi_from_pose2d_seed3 "val_known_macro_f1": 0.25135180553865305
+wifi_from_pose3d_seed1 "val_known_macro_f1": 0.2765491340025885
+wifi_from_pose3d_seed2 "val_known_macro_f1": 0.28266254463973145
+wifi_from_pose3d_seed3 "val_known_macro_f1": 0.21145571929815352
+wifi_from_video_seed1 "val_known_macro_f1": 0.2600435048475485
+wifi_from_video_seed2 "val_known_macro_f1": 0.2564896813657137
+wifi_from_video_seed3 "val_known_macro_f1": 0.2671954618484116
+wifi_seed1 "val_known_macro_f1": 0.19559026127778326
+wifi_seed2 "val_known_macro_f1": 0.19820968787685556
+wifi_seed3 "val_known_macro_f1": 0.19180426048857493
+(base) [user@hpc-login02 ~]$ for f in ~/CrossGuard-Fi/logs/har_folds-12277626_*.out; do echo "== ${f##*_} $(head -1 "$f" | cut -c1-70) | $(grep BEST "$f" | cut -c1-70)"; done
+== 0.out task 0 -> fold_b_near_semantic imu seed 1 | BEST epoch 48 | val known acc 0.7269  macro-F1 0.6946 | open-set MSP A
+== 10.out task 10 -> fold_b_near_semantic video seed 2 | BEST epoch 17 | val known acc 0.5476  macro-F1 0.5138 | open-set MSP A
+== 11.out task 11 -> fold_b_near_semantic video seed 3 | BEST epoch 50 | val known acc 0.5725  macro-F1 0.5311 | open-set MSP A
+== 12.out task 12 -> fold_b_near_semantic airpods seed 1 | BEST epoch 46 | val known acc 0.5824  macro-F1 0.5734 | open-set MSP A
+== 13.out task 13 -> fold_b_near_semantic airpods seed 2 | BEST epoch 53 | val known acc 0.5616  macro-F1 0.5594 | open-set MSP A
+== 14.out task 14 -> fold_b_near_semantic airpods seed 3 | BEST epoch 56 | val known acc 0.5856  macro-F1 0.5834 | open-set MSP A
+== 15.out task 15 -> fold_b_near_semantic wifi seed 1 | BEST epoch 43 | val known acc 0.2564  macro-F1 0.1710 | open-set MSP A
+== 16.out task 16 -> fold_b_near_semantic wifi seed 2 | BEST epoch 51 | val known acc 0.2682  macro-F1 0.1931 | open-set MSP A
+== 17.out task 17 -> fold_b_near_semantic wifi seed 3 | BEST epoch 50 | val known acc 0.2528  macro-F1 0.1945 | open-set MSP A
+== 18.out task 18 -> fold_c_cross_room imu seed 1 | BEST epoch 35 | val known acc 0.7330  macro-F1 0.7253 | open-set MSP A
+== 19.out task 19 -> fold_c_cross_room imu seed 2 | BEST epoch 41 | val known acc 0.7385  macro-F1 0.7383 | open-set MSP A
+== 1.out task 1 -> fold_b_near_semantic imu seed 2 | BEST epoch 59 | val known acc 0.7214  macro-F1 0.7012 | open-set MSP A
+== 20.out task 20 -> fold_c_cross_room imu seed 3 | BEST epoch 59 | val known acc 0.7239  macro-F1 0.7234 | open-set MSP A
+== 21.out task 21 -> fold_c_cross_room pose3d seed 1 | BEST epoch 52 | val known acc 0.6650  macro-F1 0.6493 | open-set MSP A
+== 22.out task 22 -> fold_c_cross_room pose3d seed 2 | BEST epoch 54 | val known acc 0.6741  macro-F1 0.6605 | open-set MSP A
+== 23.out task 23 -> fold_c_cross_room pose3d seed 3 | BEST epoch 56 | val known acc 0.6670  macro-F1 0.6506 | open-set MSP A
+== 24.out task 24 -> fold_c_cross_room pose2d seed 1 | BEST epoch 40 | val known acc 0.6922  macro-F1 0.6826 | open-set MSP A
+== 25.out task 25 -> fold_c_cross_room pose2d seed 2 | BEST epoch 20 | val known acc 0.6710  macro-F1 0.6473 | open-set MSP A
+== 26.out task 26 -> fold_c_cross_room pose2d seed 3 | BEST epoch 47 | val known acc 0.7310  macro-F1 0.7273 | open-set MSP A
+== 27.out task 27 -> fold_c_cross_room video seed 1 | BEST epoch 21 | val known acc 0.4887  macro-F1 0.4603 | open-set MSP A
+== 28.out task 28 -> fold_c_cross_room video seed 2 | BEST epoch 25 | val known acc 0.4967  macro-F1 0.4217 | open-set MSP A
+== 29.out task 29 -> fold_c_cross_room video seed 3 | BEST epoch 21 | val known acc 0.5395  macro-F1 0.4834 | open-set MSP A
+== 2.out task 2 -> fold_b_near_semantic imu seed 3 | BEST epoch 52 | val known acc 0.7368  macro-F1 0.7085 | open-set MSP A
+== 30.out task 30 -> fold_c_cross_room airpods seed 1 | BEST epoch 56 | val known acc 0.5970  macro-F1 0.5870 | open-set MSP A
+== 31.out task 31 -> fold_c_cross_room airpods seed 2 | BEST epoch 57 | val known acc 0.5582  macro-F1 0.5432 | open-set MSP A
+== 32.out task 32 -> fold_c_cross_room airpods seed 3 | BEST epoch 55 | val known acc 0.5884  macro-F1 0.5789 | open-set MSP A
+== 33.out task 33 -> fold_c_cross_room wifi seed 1 | BEST epoch 57 | val known acc 0.2640  macro-F1 0.2160 | open-set MSP A
+== 34.out task 34 -> fold_c_cross_room wifi seed 2 | BEST epoch 55 | val known acc 0.2257  macro-F1 0.1823 | open-set MSP A
+== 35.out task 35 -> fold_c_cross_room wifi seed 3 | BEST epoch 7 | val known acc 0.2000  macro-F1 0.1338 | open-set MSP AU
+== 3.out task 3 -> fold_b_near_semantic pose3d seed 1 | BEST epoch 51 | val known acc 0.6758  macro-F1 0.6621 | open-set MSP A
+== 4.out task 4 -> fold_b_near_semantic pose3d seed 2 | BEST epoch 29 | val known acc 0.6930  macro-F1 0.7112 | open-set MSP A
+== 5.out task 5 -> fold_b_near_semantic pose3d seed 3 | BEST epoch 52 | val known acc 0.6718  macro-F1 0.6629 | open-set MSP A
+== 6.out task 6 -> fold_b_near_semantic pose2d seed 1 | BEST epoch 46 | val known acc 0.7196  macro-F1 0.7164 | open-set MSP A
+== 7.out task 7 -> fold_b_near_semantic pose2d seed 2 | BEST epoch 59 | val known acc 0.7183  macro-F1 0.7246 | open-set MSP A
+== 8.out task 8 -> fold_b_near_semantic pose2d seed 3 | BEST epoch 48 | val known acc 0.6998  macro-F1 0.6999 | open-set MSP A
+== 9.out task 9 -> fold_b_near_semantic video seed 1 | BEST epoch 57 | val known acc 0.5738  macro-F1 0.5474 | open-set MSP A
+(base) [user@hpc-login02 ~]$ for d in ./data/runs_seeds/* ./data/runs_final/open_wifi ./data/runs_final/open_student; do for k in clean open; do echo "${d##*/} $k: $(find "$d" -path '*open_set_remap*' -name "*.$k*report*" -exec grep -H 'Average mAP' {} \; 2>/dev/null | sed -E 's/.*epoch-([0-9]+).*Average mAP: ([0-9.]+)/\2 ep\1/' | sort -rn | head -1)"; done; done
+student_s2025 clean: 0.15565241 ep19
+student_s2025 open: 0.13773814 ep19
+student_s2026 clean: 0.18052014 ep49
+student_s2026 open: 0.15745502 ep49
+wifi_s2025 clean: 0.16865895 ep19
+wifi_s2025 open: 0.14698913 ep19
+wifi_s2026 clean: 0.18794980 ep19
+wifi_s2026 open: 0.16588835 ep19
+open_wifi clean: 0.17701827 ep34
+open_wifi open: 0.15751191 ep34
+open_student clean: 0.18582646 ep34
+open_student open: 0.16655895 ep29
+(base) [user@hpc-login02 ~]$ grep -rlE "paired|t-test|t_stat" ./data/runs_seeds ./data/runs_final ~/CrossGuard-Fi/reports 2>/dev/null | head
+(base) [user@hpc-login02 ~]$

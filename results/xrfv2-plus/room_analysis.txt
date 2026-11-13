@@ -1,0 +1,19 @@
+Full 8,157-segment analysis (34 activities, three environments):
+
+WiFi:
+  silhouette activity -0.0889; environment +0.1319
+  same activity / different room centroid cosine -0.0920
+  different activity / same room centroid cosine +0.5524
+  held-out Diningroom accuracy 0.2780 (majority 0.1950)
+  held-out Studyroom accuracy 0.1788 (majority 0.1612)
+  held-out bedroom accuracy 0.2236 (majority 0.1670)
+
+Body IMU:
+  silhouette activity +0.0273; environment +0.0169
+  same activity / different room centroid cosine +0.8095
+  different activity / same room centroid cosine -0.0250
+  held-out Diningroom accuracy 0.9132
+  held-out Studyroom accuracy 0.8627
+  held-out bedroom accuracy 0.8858
+
+Source: archived `domain_vs_activity_terminal_output.txt` full-data run.
