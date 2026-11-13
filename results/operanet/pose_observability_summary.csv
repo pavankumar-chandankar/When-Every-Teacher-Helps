@@ -1,0 +1,5 @@
+dataset,target,modality,seeds,R_O_mean,R_O_sd,R_E_mean,R_E_sd,H_mean,H_sd,source
+operanet,whole_body_kinect_speed2,kinect,3,0.2807,0.0290,1.1034,0.0455,0.8226,0.0744,Omni terminal integrity summary 2026-11-13
+operanet,whole_body_kinect_speed2,pwr,3,0.9794,0.0306,1.0088,0.0112,0.0294,0.0318,Omni terminal integrity summary 2026-11-13
+operanet,whole_body_kinect_speed2,uwb,3,1.0114,0.0525,1.0347,0.0272,0.0234,0.0279,Omni terminal integrity summary 2026-11-13
+operanet,whole_body_kinect_speed2,wifi,3,0.9873,0.0148,0.9849,0.0082,-0.0023,0.0089,Omni terminal integrity summary 2026-11-13
