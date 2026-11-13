@@ -233,6 +233,7 @@ def mse(a,b):
     ensure(np.isfinite(result), 'NONFINITE_MSE_RESULT')
     return result
 
+
 def make_model(dataset,dim,nclasses,regression):
     import torch
     from torch import nn
