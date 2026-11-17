@@ -44,6 +44,6 @@ python experiments/observability/pose_observability.py preflight --dataset opera
 python experiments/observability/pose_observability.py preflight --dataset mmfi --input /path/to/compact_v2_48
 ```
 
-To reproduce full GPU training, submit a new job using `experiments/observability/run_observability.sbatch` with `DATASET`, `INPUT_DIR`, `OUTPUT_DIR`, `PYTHON_BIN`, and `SCRIPT_DIR` exported to the job. The output directory must not contain any existing experiment result. Avoid training on the login node. No MATLAB is used.
+To reproduce full GPU training, submit a new job using `experiments/observability/run_observability.sbatch` with `DATASET`, `INPUT_DIR`, `OUTPUT_DIR`, `PYTHON_BIN`, and `SCRIPT_DIR` exported to the job. The output directory must not contain any existing experiment result. Avoid training on the login node.
 
 The results are exploratory rather than direct reproductions of the frozen XRFv2 IMU observability protocol. Do not pool physical quantities across datasets.
